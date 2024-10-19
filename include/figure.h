@@ -20,6 +20,9 @@ public:
     virtual Figure& operator=(Figure&& other) noexcept = 0;
 
     virtual bool operator==(const Figure& other) const = 0;
+protected:
+    virtual void print(std::ostream& os) const = 0;
+    virtual void read(std::istream& is) = 0; 
 };
 
 #endif

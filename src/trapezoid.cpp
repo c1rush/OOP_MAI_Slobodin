@@ -2,6 +2,40 @@
 #include <cmath>
 #include <vector>
 
+Trapezoid& Trapezoid::operator=(const Trapezoid& other) {
+    if (this != &other) {
+        a = other.a;
+        b = other.b;
+        c = other.c;
+        d = other.d;
+    }
+    return *this;
+}
+
+Trapezoid& Trapezoid::operator=(Trapezoid&& other) noexcept {
+    if (this != &other) {
+        a = std::move(other.a);
+        b = std::move(other.b);
+        c = std::move(other.c);
+        d = std::move(other.d);
+    }
+    return *this;
+}
+
+Trapezoid::Trapezoid(const Trapezoid& other){
+    a = other.a;
+    b = other.b;
+    c = other.c;
+    d = other.d;
+}
+
+Trapezoid::Trapezoid(Trapezoid&& other) noexcept {
+    a = std::move(other.a);
+    b = std::move(other.b);
+    c = std::move(other.c);
+    d = std::move(other.d);
+}
+
 Trapezoid::Trapezoid() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0} {}
 
 Trapezoid::Trapezoid(const std::pair<double, double>& a, const std::pair<double, double>& b, 
@@ -41,20 +75,18 @@ Trapezoid::operator double() const {
     );
 }
 
-std::ostream& operator<<(std::ostream& os, const Trapezoid& trapezoid) {
-    os << "Trapezoid: (" << trapezoid.a.first << ", " << trapezoid.a.second << "), ("
-       << trapezoid.b.first << ", " << trapezoid.b.second << "), ("
-       << trapezoid.c.first << ", " << trapezoid.c.second << "), ("
-       << trapezoid.d.first << ", " << trapezoid.d.second << ")";
-    return os;
+void Trapezoid::print(std::ostream& os) const {
+    os << "Trapezoid: (" << a.first << ", " << a.second << "), ("
+       << b.first << ", " << b.second << "), ("
+       << c.first << ", " << c.second << "), ("
+       << d.first << ", " << d.second << ")";
 }
 
-std::istream& operator>>(std::istream& is, Trapezoid& trapezoid) {
-    is >> trapezoid.a.first >> trapezoid.a.second
-       >> trapezoid.b.first >> trapezoid.b.second
-       >> trapezoid.c.first >> trapezoid.c.second
-       >> trapezoid.d.first >> trapezoid.d.second;
-    return is;
+void Trapezoid::read(std::istream& is) {
+    is >> a.first >> a.second
+       >> b.first >> b.second
+       >> c.first >> c.second
+       >> d.first >> d.second;
 }
 
 Figure& Trapezoid::operator=(const Figure& other) {

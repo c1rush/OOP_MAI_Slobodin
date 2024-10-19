@@ -2,6 +2,45 @@
 #include <cmath>
 #include <vector>
 
+Pentagon& Pentagon::operator=(const Pentagon& other) {
+    if (this != &other) {
+        a = other.a;
+        b = other.b;
+        c = other.c;
+        d = other.d;
+        e = other.e;
+    }
+    return *this;
+}
+
+Pentagon& Pentagon::operator=(Pentagon&& other) noexcept {
+    if (this != &other) {
+        a = std::move(other.a);
+        b = std::move(other.b);
+        c = std::move(other.c);
+        d = std::move(other.d);
+        e = std::move(other.e);
+    }
+    return *this;
+}
+
+Pentagon::Pentagon(const Pentagon& other){
+    a = other.a;
+    b = other.b;
+    c = other.c;
+    d = other.d;
+    e = other.e;
+}
+
+Pentagon::Pentagon(Pentagon&& other) noexcept {
+    a = std::move(other.a);
+    b = std::move(other.b);
+    c = std::move(other.c);
+    d = std::move(other.d);
+    e = std::move(other.e);
+}
+
+
 Pentagon::Pentagon() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0}, e{0, 0} {}
 
 Pentagon::Pentagon(const std::pair<double, double>& a, const std::pair<double, double>& b, 
@@ -44,22 +83,21 @@ Pentagon::operator double() const {
     );
 }
 
-std::ostream& operator<<(std::ostream& os, const Pentagon& pentagon) {
-    os << "Pentagon: (" << pentagon.a.first << ", " << pentagon.a.second << "), ("
-       << pentagon.b.first << ", " << pentagon.b.second << "), ("
-       << pentagon.c.first << ", " << pentagon.c.second << "), ("
-       << pentagon.d.first << ", " << pentagon.d.second << "), ("
-       << pentagon.e.first << ", " << pentagon.e.second << ")";
-    return os;
+void Pentagon::print(std::ostream& os) const {
+    os << "Pentagon: (" << a.first << ", " << a.second << "), ("
+       << b.first << ", " << b.second << "), ("
+       << c.first << ", " << c.second << "), ("
+       << d.first << ", " << d.second << "), ("
+       << e.first << ", " << e.second << ")";
 }
 
-std::istream& operator>>(std::istream& is, Pentagon& pentagon) {
-    is >> pentagon.a.first >> pentagon.a.second
-       >> pentagon.b.first >> pentagon.b.second
-       >> pentagon.c.first >> pentagon.c.second
-       >> pentagon.d.first >> pentagon.d.second
-       >> pentagon.e.first >> pentagon.e.second;
-    return is;
+void Pentagon::read(std::istream& is) {
+    is >> a.first >> a.second
+       >> b.first >> b.second
+       >> c.first >> c.second
+       >> d.first >> d.second
+       >> e.first >> e.second;
+
 }
 
 Figure& Pentagon::operator=(const Figure& other) {

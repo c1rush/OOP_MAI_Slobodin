@@ -8,19 +8,26 @@
 int main() {
     FigureArray array;
 
-    // Добавление нескольких фигур с фиксированными координатами
     // Добавляем трапецию
-    Figure* trapezoid = new Trapezoid({0, 0}, {1, 1}, {2, 1}, {2, 0});
-    array.AddFigure(std::move(trapezoid));
+    Trapezoid* trapezoid = new Trapezoid();
+    std::cout << "Введите координаты 4 вершин трапеции по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
+    std::cin >> *trapezoid;
+    array.AddFigure(trapezoid);
+    std::cout << "Добавлена фигура:" << std::endl << *trapezoid << std::endl << "Area: " << double(*trapezoid) << std::endl;
 
     // Добавляем ромб
-    Figure* rhombus = new Rhombus({0, 0}, {1, 1}, {2, 0}, {1, -1});
+    Rhombus* rhombus = new Rhombus();
+    std::cout << "Введите координаты 4 вершин ромба по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
+    std::cin >> *rhombus;
     array.AddFigure(std::move(rhombus));
+    std::cout << "Добавлена фигура:" << std::endl << *rhombus << std::endl << "Area: " << double(*rhombus) << std::endl;
 
     // Добавляем правильный пятиугольник
-    Figure* pentagon = new Pentagon({1, 0}, {0.309, 0.951}, {-0.809, 0.588}, 
-                                    {-0.809, -0.588}, {0.309, -0.951});
-    array.AddFigure(std::move(pentagon));
+    Pentagon* pentagon = new Pentagon();
+    std::cout << "Введите координаты 5 вершин 5-угольника по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
+    std::cin >> *pentagon;
+    array.AddFigure(pentagon);
+    std::cout << "Добавлена фигура:" << std::endl << *pentagon << std::endl <<  "Area: " << double(*pentagon) << std::endl;
 
     // Вывод всех добавленных фигур
     std::cout << "Все фигуры:" << std::endl;
@@ -30,7 +37,9 @@ int main() {
     std::cout << "Общая площадь всех фигур: " << array.TotalArea() << std::endl;
 
     // Удаляем фигуру по индексу 1 (удаляем ромб)
-    size_t index = 1;
+    size_t index;
+    std::cout << "Введите индекс объекта для удаления:" << std::endl;
+    std::cin >> index;
     std::cout << "Удаляем фигуру по индексу: " << index << std::endl;
     array.RemoveFigure(index);
 

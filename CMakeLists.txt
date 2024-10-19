@@ -25,12 +25,14 @@ add_executable(FiguresLab
     src/rhombus.cpp include/rhombus.h
     src/pentagon.cpp include/pentagon.h
     src/figure_array.cpp include/figure_array.h
+    src/figure.cpp include/figure.h
 )
 add_library(${CMAKE_PROJECT_NAME}_lib
     src/trapezoid.cpp
     src/rhombus.cpp
     src/pentagon.cpp
     src/figure_array.cpp
+    src/figure.cpp
 )
 
 target_include_directories(FiguresLab PRIVATE include)

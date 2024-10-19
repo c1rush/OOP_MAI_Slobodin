@@ -2,6 +2,40 @@
 #include <cmath>
 #include <vector>
 
+Rhombus& Rhombus::operator=(const Rhombus& other) {
+    if (this != &other) {
+        a = other.a;
+        b = other.b;
+        c = other.c;
+        d = other.d;
+    }
+    return *this;
+}
+
+Rhombus& Rhombus::operator=(Rhombus&& other) noexcept {
+    if (this != &other) {
+        a = std::move(other.a);
+        b = std::move(other.b);
+        c = std::move(other.c);
+        d = std::move(other.d);
+    }
+    return *this;
+}
+
+Rhombus::Rhombus(const Rhombus& other){
+    a = other.a;
+    b = other.b;
+    c = other.c;
+    d = other.d;
+}
+
+Rhombus::Rhombus(Rhombus&& other) noexcept {
+    a = std::move(other.a);
+    b = std::move(other.b);
+    c = std::move(other.c);
+    d = std::move(other.d);
+}
+
 Rhombus::Rhombus() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0} {}
 
 Rhombus::Rhombus(const std::pair<double, double>& a, const std::pair<double, double>& b, 
@@ -41,20 +75,18 @@ Rhombus::operator double() const {
     );
 }
 
-std::ostream& operator<<(std::ostream& os, const Rhombus& rhombus) {
-    os << "Rhombus: (" << rhombus.a.first << ", " << rhombus.a.second << "), ("
-       << rhombus.b.first << ", " << rhombus.b.second << "), ("
-       << rhombus.c.first << ", " << rhombus.c.second << "), ("
-       << rhombus.d.first << ", " << rhombus.d.second << ")";
-    return os;
+void Rhombus::print(std::ostream& os) const {
+    os << "Rhombus: (" << a.first << ", " << a.second << "), ("
+       << b.first << ", " << b.second << "), ("
+       << c.first << ", " << c.second << "), ("
+       << d.first << ", " << d.second << ")";
 }
 
-std::istream& operator>>(std::istream& is, Rhombus& rhombus) {
-    is >> rhombus.a.first >> rhombus.a.second
-       >> rhombus.b.first >> rhombus.b.second
-       >> rhombus.c.first >> rhombus.c.second
-       >> rhombus.d.first >> rhombus.d.second;
-    return is;
+void Rhombus::read(std::istream& is) {
+    is >> a.first >> a.second
+       >> b.first >> b.second
+       >> c.first >> c.second
+       >> d.first >> d.second;
 }
 
 Figure& Rhombus::operator=(const Figure& other) {

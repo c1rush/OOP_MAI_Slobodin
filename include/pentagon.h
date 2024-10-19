@@ -7,6 +7,11 @@ class Pentagon : public Figure {
 private:
     std::pair<double, double> a, b, c, d, e;
 public:
+    Pentagon(const Pentagon& other);
+    Pentagon(Pentagon&& other) noexcept;
+    Pentagon& operator=(const Pentagon& other);
+    Pentagon& operator=(Pentagon&& other) noexcept;
+
     Pentagon();
     Pentagon(const std::pair<double, double>& a, const std::pair<double, double>& b, 
              const std::pair<double, double>& c, const std::pair<double, double>& d, 
@@ -16,12 +21,15 @@ public:
 
     operator double() const override;
 
-    friend std::ostream& operator<<(std::ostream& os, const Pentagon& pentagon);
-    friend std::istream& operator>>(std::istream& is, Pentagon& pentagon);
-
     Figure& operator=(const Figure& other) override;
     Figure& operator=(Figure&& other) noexcept override;
+
+
+
     bool operator==(const Figure& other) const override;
+protected:
+    void print(std::ostream& os) const override;
+    void read(std::istream& is) override;
 };
 
 #endif
