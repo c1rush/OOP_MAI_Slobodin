@@ -2,10 +2,11 @@
 #define RHOMBUS_H
 
 #include "figure.h"
+#include <array>
 
 class Rhombus : public Figure {
 private:
-    std::pair<double, double> a, b, c, d;
+    std::array<std::pair<double, double>, 4> vertices;
 public:
     Rhombus(const Rhombus& other);
     Rhombus(Rhombus&& other) noexcept;

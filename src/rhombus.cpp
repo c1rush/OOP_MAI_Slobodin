@@ -4,46 +4,29 @@
 
 Rhombus& Rhombus::operator=(const Rhombus& other) {
     if (this != &other) {
-        a = other.a;
-        b = other.b;
-        c = other.c;
-        d = other.d;
+        vertices = other.vertices;
     }
     return *this;
 }
 
 Rhombus& Rhombus::operator=(Rhombus&& other) noexcept {
     if (this != &other) {
-        a = std::move(other.a);
-        b = std::move(other.b);
-        c = std::move(other.c);
-        d = std::move(other.d);
+        vertices = std::move(other.vertices);
     }
     return *this;
 }
 
-Rhombus::Rhombus(const Rhombus& other){
-    a = other.a;
-    b = other.b;
-    c = other.c;
-    d = other.d;
-}
+Rhombus::Rhombus(const Rhombus& other) : vertices(other.vertices) {}
 
-Rhombus::Rhombus(Rhombus&& other) noexcept {
-    a = std::move(other.a);
-    b = std::move(other.b);
-    c = std::move(other.c);
-    d = std::move(other.d);
-}
+Rhombus::Rhombus(Rhombus&& other) noexcept : vertices(std::move(other.vertices)) {}
 
-Rhombus::Rhombus() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0} {}
+Rhombus::Rhombus() : vertices{{{0, 0}, {0, 0}, {0, 0}, {0, 0}}} {}
 
 Rhombus::Rhombus(const std::pair<double, double>& a, const std::pair<double, double>& b, 
                  const std::pair<double, double>& c, const std::pair<double, double>& d)
-    : a(a), b(b), c(c), d(d) {}
+    : vertices({a, b, c, d}) {}
 
 std::pair<double, double> Rhombus::Center() const {
-    std::vector<std::pair<double, double>> vertices = {a, b, c, d, a};
     double A = 0;
     double C_x = 0, C_y = 0;
 
@@ -70,32 +53,31 @@ std::pair<double, double> Rhombus::Center() const {
 
 Rhombus::operator double() const {
     return 0.5 * std::abs(
-        a.first * b.second + b.first * c.second + c.first * d.second + d.first * a.second - 
-        (a.second * b.first + b.second * c.first + c.second * d.first + d.second * a.first)
+        vertices[0].first * vertices[1].second + vertices[1].first * vertices[2].second +
+        vertices[2].first * vertices[3].second + vertices[3].first * vertices[0].second -
+        (vertices[0].second * vertices[1].first + vertices[1].second * vertices[2].first +
+         vertices[2].second * vertices[3].first + vertices[3].second * vertices[0].first)
     );
 }
 
 void Rhombus::print(std::ostream& os) const {
-    os << "Rhombus: (" << a.first << ", " << a.second << "), ("
-       << b.first << ", " << b.second << "), ("
-       << c.first << ", " << c.second << "), ("
-       << d.first << ", " << d.second << ")";
+    os << "Rhombus: (" << vertices[0].first << ", " << vertices[0].second << "), ("
+       << vertices[1].first << ", " << vertices[1].second << "), ("
+       << vertices[2].first << ", " << vertices[2].second << "), ("
+       << vertices[3].first << ", " << vertices[3].second << ")";
 }
 
 void Rhombus::read(std::istream& is) {
-    is >> a.first >> a.second
-       >> b.first >> b.second
-       >> c.first >> c.second
-       >> d.first >> d.second;
+    is >> vertices[0].first >> vertices[0].second
+       >> vertices[1].first >> vertices[1].second
+       >> vertices[2].first >> vertices[2].second
+       >> vertices[3].first >> vertices[3].second;
 }
 
 Figure& Rhombus::operator=(const Figure& other) {
     if (this != &other) {
-        if(const Rhombus* rhomb = dynamic_cast<const Rhombus*>(&other)){        
-            a = rhomb->a;
-            b = rhomb->b;
-            c = rhomb->c;
-            d = rhomb->d;
+        if (const Rhombus* rhomb = dynamic_cast<const Rhombus*>(&other)) {
+            vertices = rhomb->vertices;
         }
     }
     return *this;
@@ -103,11 +85,8 @@ Figure& Rhombus::operator=(const Figure& other) {
 
 Figure& Rhombus::operator=(Figure&& other) noexcept {
     if (this != &other) {
-        if(const Rhombus* rhomb = dynamic_cast<Rhombus*>(&other)){
-            a = std::move(rhomb->a);
-            b = std::move(rhomb->b);
-            c = std::move(rhomb->c);
-            d = std::move(rhomb->d);
+        if (const Rhombus* rhomb = dynamic_cast<Rhombus*>(&other)) {
+            vertices = std::move(rhomb->vertices);
         }
     }
     return *this;
@@ -115,6 +94,5 @@ Figure& Rhombus::operator=(Figure&& other) noexcept {
 
 bool Rhombus::operator==(const Figure& other) const {
     const Rhombus* otherRhombus = dynamic_cast<const Rhombus*>(&other);
-    return otherRhombus && (a == otherRhombus->a) && (b == otherRhombus->b)
-        && (c == otherRhombus->c) && (d == otherRhombus->d);
+    return otherRhombus && (vertices == otherRhombus->vertices);
 }

@@ -4,52 +4,31 @@
 
 Pentagon& Pentagon::operator=(const Pentagon& other) {
     if (this != &other) {
-        a = other.a;
-        b = other.b;
-        c = other.c;
-        d = other.d;
-        e = other.e;
+        vertices = other.vertices;
     }
     return *this;
 }
 
 Pentagon& Pentagon::operator=(Pentagon&& other) noexcept {
     if (this != &other) {
-        a = std::move(other.a);
-        b = std::move(other.b);
-        c = std::move(other.c);
-        d = std::move(other.d);
-        e = std::move(other.e);
+        vertices = std::move(other.vertices);
     }
     return *this;
 }
 
-Pentagon::Pentagon(const Pentagon& other){
-    a = other.a;
-    b = other.b;
-    c = other.c;
-    d = other.d;
-    e = other.e;
-}
+Pentagon::Pentagon(const Pentagon& other) : vertices(other.vertices) {}
 
-Pentagon::Pentagon(Pentagon&& other) noexcept {
-    a = std::move(other.a);
-    b = std::move(other.b);
-    c = std::move(other.c);
-    d = std::move(other.d);
-    e = std::move(other.e);
-}
+Pentagon::Pentagon(Pentagon&& other) noexcept : vertices(std::move(other.vertices)) {}
 
 
-Pentagon::Pentagon() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0}, e{0, 0} {}
+Pentagon::Pentagon() : vertices{{{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}} {}
 
 Pentagon::Pentagon(const std::pair<double, double>& a, const std::pair<double, double>& b, 
                    const std::pair<double, double>& c, const std::pair<double, double>& d, 
                    const std::pair<double, double>& e)
-    : a(a), b(b), c(c), d(d), e(e) {}
+    : vertices({a, b, c, d, e}) {}
 
 std::pair<double, double> Pentagon::Center() const {
-    std::vector<std::pair<double, double>> vertices = {a, b, c, d, e, a};
     double A = 0;
     double C_x = 0, C_y = 0;
 
@@ -76,38 +55,34 @@ std::pair<double, double> Pentagon::Center() const {
 
 Pentagon::operator double() const {
     return 0.5 * std::abs(
-        a.first * b.second + b.first * c.second + c.first * d.second +
-        d.first * e.second + e.first * a.second - 
-        (a.second * b.first + b.second * c.first + c.second * d.first +
-        d.second * e.first + e.second * a.first)
+        vertices[0].first * vertices[1].second + vertices[1].first * vertices[2].second + vertices[2].first * vertices[3].second +
+        vertices[3].first * vertices[4].second + vertices[4].first * vertices[0].second - 
+        (vertices[0].second * vertices[1].first + vertices[1].second * vertices[2].first + vertices[2].second * vertices[3].first +
+        vertices[3].second * vertices[4].first + vertices[4].second * vertices[0].first)
     );
 }
 
 void Pentagon::print(std::ostream& os) const {
-    os << "Pentagon: (" << a.first << ", " << a.second << "), ("
-       << b.first << ", " << b.second << "), ("
-       << c.first << ", " << c.second << "), ("
-       << d.first << ", " << d.second << "), ("
-       << e.first << ", " << e.second << ")";
+    os << "Pentagon: (" << vertices[0].first << ", " << vertices[0].second << "), ("
+       << vertices[1].first << ", " << vertices[1].second << "), ("
+       << vertices[2].first << ", " << vertices[2].second << "), ("
+       << vertices[3].first << ", " << vertices[3].second << "), ("
+       << vertices[4].first << ", " << vertices[4].second << ")";
 }
 
 void Pentagon::read(std::istream& is) {
-    is >> a.first >> a.second
-       >> b.first >> b.second
-       >> c.first >> c.second
-       >> d.first >> d.second
-       >> e.first >> e.second;
+    is >> vertices[0].first >> vertices[0].second
+       >> vertices[1].first >> vertices[1].second
+       >> vertices[2].first >> vertices[2].second
+       >> vertices[3].first >> vertices[3].second
+       >> vertices[4].first >> vertices[4].second;
 
 }
 
 Figure& Pentagon::operator=(const Figure& other) {
     if (this != &other) {
         if(const Pentagon* pent = dynamic_cast<const Pentagon*>(&other)){
-            a = pent->a;
-            b = pent->b;
-            c = pent->c;
-            d = pent->d;
-            e = pent->e;
+            vertices = pent->vertices;
         }
     }
     return *this;
@@ -116,11 +91,7 @@ Figure& Pentagon::operator=(const Figure& other) {
 Figure& Pentagon::operator=(Figure&& other) noexcept {
     if (this != &other) {
         if(const Pentagon* pent = dynamic_cast<Pentagon*>(&other)){
-            a = std::move(pent->a);
-            b = std::move(pent->b);
-            c = std::move(pent->c);
-            d = std::move(pent->d);
-            e = std::move(pent->e);
+            vertices = std::move(pent->vertices);
         }
     }
     return *this;
@@ -128,6 +99,5 @@ Figure& Pentagon::operator=(Figure&& other) noexcept {
 
 bool Pentagon::operator==(const Figure& other) const {
     const Pentagon* otherPentagon = dynamic_cast<const Pentagon*>(&other);
-    return otherPentagon && (a == otherPentagon->a) && (b == otherPentagon->b)
-        && (c == otherPentagon->c) && (d == otherPentagon->d) && (e == otherPentagon->e);
+    return otherPentagon && (vertices == otherPentagon->vertices);
 }

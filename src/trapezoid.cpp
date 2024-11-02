@@ -4,46 +4,29 @@
 
 Trapezoid& Trapezoid::operator=(const Trapezoid& other) {
     if (this != &other) {
-        a = other.a;
-        b = other.b;
-        c = other.c;
-        d = other.d;
+        vertices = other.vertices;
     }
     return *this;
 }
 
 Trapezoid& Trapezoid::operator=(Trapezoid&& other) noexcept {
     if (this != &other) {
-        a = std::move(other.a);
-        b = std::move(other.b);
-        c = std::move(other.c);
-        d = std::move(other.d);
+        vertices = std::move(other.vertices);
     }
     return *this;
 }
 
-Trapezoid::Trapezoid(const Trapezoid& other){
-    a = other.a;
-    b = other.b;
-    c = other.c;
-    d = other.d;
-}
+Trapezoid::Trapezoid(const Trapezoid& other) : vertices(other.vertices) {}
 
-Trapezoid::Trapezoid(Trapezoid&& other) noexcept {
-    a = std::move(other.a);
-    b = std::move(other.b);
-    c = std::move(other.c);
-    d = std::move(other.d);
-}
+Trapezoid::Trapezoid(Trapezoid&& other) noexcept : vertices(std::move(other.vertices)) {}
 
-Trapezoid::Trapezoid() : a{0, 0}, b{0, 0}, c{0, 0}, d{0, 0} {}
+Trapezoid::Trapezoid() : vertices{{{0, 0}, {0, 0}, {0, 0}, {0, 0}}} {}
 
 Trapezoid::Trapezoid(const std::pair<double, double>& a, const std::pair<double, double>& b, 
                      const std::pair<double, double>& c, const std::pair<double, double>& d)
-    : a(a), b(b), c(c), d(d) {}
+    : vertices({a, b, c, d}) {}
 
 std::pair<double, double> Trapezoid::Center() const {
-    std::vector<std::pair<double, double>> vertices = {a, b, c, d, a};
     double A = 0;
     double C_x = 0, C_y = 0;
 
@@ -70,32 +53,31 @@ std::pair<double, double> Trapezoid::Center() const {
 
 Trapezoid::operator double() const {
     return 0.5 * std::abs(
-        a.first * b.second + b.first * c.second + c.first * d.second + d.first * a.second - 
-        (a.second * b.first + b.second * c.first + c.second * d.first + d.second * a.first)
+        vertices[0].first * vertices[1].second + vertices[1].first * vertices[2].second +
+        vertices[2].first * vertices[3].second + vertices[3].first * vertices[0].second -
+        (vertices[0].second * vertices[1].first + vertices[1].second * vertices[2].first +
+         vertices[2].second * vertices[3].first + vertices[3].second * vertices[0].first)
     );
 }
 
 void Trapezoid::print(std::ostream& os) const {
-    os << "Trapezoid: (" << a.first << ", " << a.second << "), ("
-       << b.first << ", " << b.second << "), ("
-       << c.first << ", " << c.second << "), ("
-       << d.first << ", " << d.second << ")";
+    os << "Trapezoid: (" << vertices[0].first << ", " << vertices[0].second << "), ("
+       << vertices[1].first << ", " << vertices[1].second << "), ("
+       << vertices[2].first << ", " << vertices[2].second << "), ("
+       << vertices[3].first << ", " << vertices[3].second << ")";
 }
 
 void Trapezoid::read(std::istream& is) {
-    is >> a.first >> a.second
-       >> b.first >> b.second
-       >> c.first >> c.second
-       >> d.first >> d.second;
+    is >> vertices[0].first >> vertices[0].second
+       >> vertices[1].first >> vertices[1].second
+       >> vertices[2].first >> vertices[2].second
+       >> vertices[3].first >> vertices[3].second;
 }
 
 Figure& Trapezoid::operator=(const Figure& other) {
     if (this != &other) {
         if (const Trapezoid* trap = dynamic_cast<const Trapezoid*>(&other)) {
-            a = trap->a;
-            b = trap->b;
-            c = trap->c;
-            d = trap->d;
+            vertices = trap->vertices;
         }
     }
     return *this;
@@ -104,10 +86,7 @@ Figure& Trapezoid::operator=(const Figure& other) {
 Figure& Trapezoid::operator=(Figure&& other) noexcept {
     if (this != &other) {
         if (Trapezoid* trap = dynamic_cast<Trapezoid*>(&other)) {
-            a = std::move(trap->a);
-            b = std::move(trap->b);
-            c = std::move(trap->c);
-            d = std::move(trap->d);
+            vertices = std::move(trap->vertices);
         }
     }
     return *this;
@@ -115,6 +94,5 @@ Figure& Trapezoid::operator=(Figure&& other) noexcept {
 
 bool Trapezoid::operator==(const Figure& other) const {
     const Trapezoid* otherTrapezoid = dynamic_cast<const Trapezoid*>(&other);
-    return otherTrapezoid && (a == otherTrapezoid->a) && (b == otherTrapezoid->b)
-        && (c == otherTrapezoid->c) && (d == otherTrapezoid->d);
+    return otherTrapezoid && (vertices == otherTrapezoid->vertices);
 }

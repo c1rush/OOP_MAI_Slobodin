@@ -2,10 +2,11 @@
 #define PENTAGON_H
 
 #include "figure.h"
+#include<array>
 
 class Pentagon : public Figure {
 private:
-    std::pair<double, double> a, b, c, d, e;
+    std::array<std::pair<double, double>, 5> vertices;
 public:
     Pentagon(const Pentagon& other);
     Pentagon(Pentagon&& other) noexcept;

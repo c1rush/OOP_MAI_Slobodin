@@ -2,10 +2,11 @@
 #define TRAPEZOID_H
 
 #include "figure.h"
+#include <array>
 
 class Trapezoid : public Figure {
 private:
-    std::pair<double, double> a, b, c, d;
+    std::array<std::pair<double, double>, 4> vertices;
 public:
     Trapezoid(const Trapezoid& other);
     Trapezoid(Trapezoid&& other) noexcept;

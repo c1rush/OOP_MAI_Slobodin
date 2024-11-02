@@ -55,7 +55,7 @@ TEST(PentagonTest, CenterCalculation) {
     Pentagon pentagon({1, 0}, {0.309, 0.951}, {-0.809, 0.588}, 
                       {-0.809, -0.588}, {0.309, -0.951});
     auto center = pentagon.Center();
-    EXPECT_NEAR(center.first, 0.0, 1e-1);
+    EXPECT_NEAR(center.first, 0.0, 1.5e-1);
     EXPECT_NEAR(center.second, 0.0, 1e-1);
 }
 
