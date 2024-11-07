@@ -1,51 +1,89 @@
-#include "trapezoid.h"
-#include "rhombus.h"
-#include "pentagon.h"
-#include "figure_array.h"
 #include <iostream>
 #include <memory>
+#include "src/array.h"
+#include "src/pentagon.h"
+#include "src/rhombus.h"
+#include "src/trapezoid.h"
+
+using namespace Shape;
 
 int main() {
-    FigureArray array;
+    Array<std::shared_ptr<IFigure>> figures;
 
-    // Добавляем трапецию
-    Trapezoid* trapezoid = new Trapezoid();
-    std::cout << "Введите координаты 4 вершин трапеции по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
-    std::cin >> *trapezoid;
-    array.AddFigure(trapezoid);
-    std::cout << "Добавлена фигура:" << std::endl << *trapezoid << std::endl << "Area: " << double(*trapezoid) << std::endl;
+    while (true) {
+        std::cout << "Выберите действие:\n"
+                  << "1. Добавить фигуру\n"
+                  << "2. Показать все фигуры\n"
+                  << "3. Вычислить общую площадь\n"
+                  << "4. Удалить фигуру по индексу\n"
+                  << "5. Выйти\n"
+                  << "Введите номер действия: ";
+        int choice;
+        std::cin >> choice;
 
-    // Добавляем ромб
-    Rhombus* rhombus = new Rhombus();
-    std::cout << "Введите координаты 4 вершин ромба по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
-    std::cin >> *rhombus;
-    array.AddFigure(std::move(rhombus));
-    std::cout << "Добавлена фигура:" << std::endl << *rhombus << std::endl << "Area: " << double(*rhombus) << std::endl;
+        if (choice == 1) {
+            std::cout << "Выберите тип фигуры:\n"
+                      << "1. Пятиугольник\n"
+                      << "2. Ромб\n"
+                      << "3. Трапеция\n"
+                      << "Введите номер типа: ";
+            int type;
+            std::cin >> type;
 
-    // Добавляем правильный пятиугольник
-    Pentagon* pentagon = new Pentagon();
-    std::cout << "Введите координаты 5 вершин 5-угольника по часовой : (x1 y1 x2 y2 x3 y3 x4 y4)" << std::endl;
-    std::cin >> *pentagon;
-    array.AddFigure(pentagon);
-    std::cout << "Добавлена фигура:" << std::endl << *pentagon << std::endl <<  "Area: " << double(*pentagon) << std::endl;
+            std::shared_ptr<IFigure> figure;
 
-    // Вывод всех добавленных фигур
-    std::cout << "Все фигуры:" << std::endl;
-    array.PrintAll();
+            if (type == 1) {
+                std::shared_ptr<Pentagon<double>> pentagon = std::make_shared<Pentagon<double>>();
+                std::cin >> *pentagon;
+                figure = pentagon;
+            }
+            else if (type == 2) {
+                std::shared_ptr<Rhombus<double>> rhombus = std::make_shared<Rhombus<double>>();
+                std::cin >> *rhombus;
+                figure = rhombus;
+            }
+            else if (type == 3) {
 
-    // Вывод общей площади всех фигур
-    std::cout << "Общая площадь всех фигур: " << array.TotalArea() << std::endl;
+                std::shared_ptr<Trapezoid<double>> trapezoid = std::make_shared<Trapezoid<double>>();
+                std::cin >> *trapezoid;
+                figure = trapezoid;
+            }
+            else {
+                std::cout << "Некорректный тип фигуры.\n";
+                continue;
+            }
 
-    // Удаляем фигуру по индексу 1 (удаляем ромб)
-    size_t index;
-    std::cout << "Введите индекс объекта для удаления:" << std::endl;
-    std::cin >> index;
-    std::cout << "Удаляем фигуру по индексу: " << index << std::endl;
-    array.RemoveFigure(index);
-
-    // Вывод оставшихся фигур
-    std::cout << "Оставшиеся фигуры:" << std::endl;
-    array.PrintAll();
+            figures.push_back(figure);
+            std::cout << "Фигура добавлена.\n";
+        }
+        else if (choice == 2) {
+            std::cout << "Все фигуры:\n";
+            figures.PrintAll();
+        }
+        else if (choice == 3) {
+            double total_area = figures.TotalArea();
+            std::cout << "Общая площадь всех фигур: " << total_area << "\n";
+        }
+        else if (choice == 4) {
+            std::cout << "Введите индекс фигуры для удаления: ";
+            size_t index;
+            std::cin >> index;
+            try {
+                figures.remove_at(index);
+                std::cout << "Фигура удалена.\n";
+            }
+            catch (const std::out_of_range& e) {
+                std::cout << "Ошибка: " << e.what() << "\n";
+            }
+        }
+        else if (choice == 5) {
+            std::cout << "Выход из программы.\n";
+            break;
+        }
+        else {
+            std::cout << "Некорректный выбор.\n";
+        }
+    }
 
     return 0;
 }
