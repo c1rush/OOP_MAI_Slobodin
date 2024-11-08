@@ -5,11 +5,17 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
+#include <type_traits>
 #include "ifigure.h"
 
 namespace Shape {
 
-template <class T>
+template <typename T>
+concept ValidArrayType = 
+    std::is_same_v<T, std::shared_ptr<std::remove_cv_t<std::remove_reference_t<typename T::element_type>>>> &&
+    std::is_base_of_v<IFigure, typename T::element_type>;
+
+template <ValidArrayType T>
 class Array {
 private:
     std::shared_ptr<T[]> data;

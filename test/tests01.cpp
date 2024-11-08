@@ -44,56 +44,62 @@ TEST(TrapezoidTests, AreaCenter) {
 }
 
 TEST(ArrayTests, TotalArea) {
-    auto pentagon = Pentagon<double>({
-        Point<double>{0, 0},
-        Point<double>{1, 1},
-        Point<double>{2, 1},
-        Point<double>{2, -1},
-        Point<double>{1, -1}
-    });
-    auto rhombus = Rhombus<double>(Point<double>{0, 0}, 2.0, 4.0);
-    auto trapezoid = Trapezoid<double>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
+    auto pentagon = std::make_shared<Pentagon<double>>(
+        Pentagon<double>({
+            Point<double>{0, 0},
+            Point<double>{1, 1},
+            Point<double>{2, 1},
+            Point<double>{2, -1},
+            Point<double>{1, -1}
+        })
+    );
+    auto rhombus = std::make_shared<Rhombus<double>>(Point<double>{0, 0}, 2.0, 4.0);
+    auto trapezoid = std::make_shared<Trapezoid<double>>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
 
-    Array<IFigure*> figures = {&pentagon, &rhombus, &trapezoid};
-
-    EXPECT_NEAR(figures.TotalArea(), 11.0, 1e-6);
+    Array<std::shared_ptr<IFigure>> figures = {pentagon, rhombus, trapezoid};
 }
 
 TEST(ArrayTests, SubscriptOperator) {
-    auto pentagon = Pentagon<double>({
-        Point<double>{0, 0},
-        Point<double>{1, 1},
-        Point<double>{2, 1},
-        Point<double>{2, -1},
-        Point<double>{1, -1}
-    });
-    auto rhombus = Rhombus<double>(Point<double>{0, 0}, 2.0, 4.0);
-    auto trapezoid = Trapezoid<double>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
+    auto pentagon = std::make_shared<Pentagon<double>>(
+        Pentagon<double>({
+            Point<double>{0, 0},
+            Point<double>{1, 1},
+            Point<double>{2, 1},
+            Point<double>{2, -1},
+            Point<double>{1, -1}
+        })
+    );
+    auto rhombus = std::make_shared<Rhombus<double>>(Point<double>{0, 0}, 2.0, 4.0);
+    auto trapezoid = std::make_shared<Trapezoid<double>>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
 
-    Array<IFigure*> figures;
-    figures.push_back(&pentagon);
-    figures.push_back(&rhombus);
-    figures.push_back(&trapezoid);
+    Array<std::shared_ptr<IFigure>> figures;
+    figures.push_back(pentagon);
+    figures.push_back(rhombus);
+    figures.push_back(trapezoid);
 
     EXPECT_EQ(figures.size(), 3);
-    EXPECT_EQ(double(*figures[0]), 3.0);
-    EXPECT_EQ(double(*figures[1]), 4.0);
-    EXPECT_EQ(double(*figures[2]), 4.0);
+
+    EXPECT_EQ(static_cast<double>(*figures[0]), 3.0);
+    EXPECT_EQ(static_cast<double>(*figures[1]), 4.0);
+    EXPECT_EQ(static_cast<double>(*figures[2]), 4.0);
 }
 
 TEST(ArrayTests, RemoveAt) {
-    auto pentagon = Pentagon<double>({
-        Point<double>{0, 0},
-        Point<double>{1, 1},
-        Point<double>{2, 1},
-        Point<double>{2, -1},
-        Point<double>{1, -1}
-    });
-    auto trapezoid = Trapezoid<double>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
+    auto pentagon = std::make_shared<Pentagon<double>>(
+        Pentagon<double>({
+            Point<double>{0, 0},
+            Point<double>{1, 1},
+            Point<double>{2, 1},
+            Point<double>{2, -1},
+            Point<double>{1, -1}
+        })
+    );
+    auto trapezoid = std::make_shared<Trapezoid<double>>(Point<double>{0, 0}, Point<double>{2, 0}, 2.0);
 
-    Array<IFigure*> figures;
-    figures.push_back(&pentagon);
-    figures.push_back(&trapezoid);
+    Array<std::shared_ptr<IFigure>> figures;
+    figures.push_back(pentagon);
+    figures.push_back(trapezoid);
+
 
     EXPECT_EQ(figures.size(), 2);
     figures.remove_at(0);
@@ -102,56 +108,65 @@ TEST(ArrayTests, RemoveAt) {
 }
 
 TEST(ArrayTests, InvalidIndex) {
-    Array<IFigure*> figures;
+    Array<std::shared_ptr<IFigure>> figures;
     EXPECT_THROW(figures[0], std::out_of_range);
     EXPECT_THROW(figures.remove_at(0), std::out_of_range);
 }
 
 TEST(ArrayTests, ArrayOfFigures) {
-    auto figure1 = Rhombus<double>({
-        Point<double>{0, 0},
-        Point<double>{0, 2},
-        Point<double>{2, 2},
-        Point<double>{2, 0}
-    });
-    auto figure2 = Trapezoid<double>({
-        Point<double>{0, 0},
-        Point<double>{0, 3},
-        Point<double>{3, 3},
-        Point<double>{3, 0}
-    });
+    auto figure1 = std::make_shared<Rhombus<double>>(
+        Rhombus<double>({
+            Point<double>{0, 0},
+            Point<double>{0, 2},
+            Point<double>{2, 2},
+            Point<double>{2, 0}
+        })
+    );
+    auto figure2 = std::make_shared<Trapezoid<double>>(
+        Trapezoid<double>({
+            Point<double>{0, 0},
+            Point<double>{0, 3},
+            Point<double>{3, 3},
+            Point<double>{3, 0}
+        })
+    );
 
-    Array<Figure<double, 4>> figures;
+    Array<std::shared_ptr<IFigure>> figures;
     figures.push_back(figure1);
     figures.push_back(figure2);
 
     EXPECT_EQ(figures.size(), 2);
-    EXPECT_NEAR(static_cast<double>(figures[0]), 4.0, 1e-6);
-    EXPECT_NEAR(static_cast<double>(figures[1]), 9.0, 1e-6);
+    EXPECT_NEAR(static_cast<double>(*figures[0]), 4.0, 1e-6);
+    EXPECT_NEAR(static_cast<double>(*figures[1]), 9.0, 1e-6);
+    EXPECT_EQ(figures.TotalArea(),static_cast<double>(*figures[0]) + static_cast<double>(*figures[1]));
 }
 
 TEST(ArrayTests, UsingRemoveAt) {
-    auto figure1 = Figure<double, 4>({
-        Point<double>{0, 0},
-        Point<double>{0, 2},
-        Point<double>{2, 2},
-        Point<double>{2, 0}
-    });
-    auto figure2 = Figure<double, 4>({
-        Point<double>{0, 0},
-        Point<double>{0, 3},
-        Point<double>{3, 3},
-        Point<double>{3, 0}
-    });
+    auto figure1 = std::make_shared<Figure<double, 4>>(
+        Figure<double, 4>({
+            Point<double>{0, 0},
+            Point<double>{0, 2},
+            Point<double>{2, 2},
+            Point<double>{2, 0}
+        })
+    );
+    auto figure2 = std::make_shared<Figure<double, 4>>(
+        Figure<double, 4>({
+            Point<double>{0, 0},
+            Point<double>{0, 3},
+            Point<double>{3, 3},
+            Point<double>{3, 0}
+        })
+    );
 
-    Array<Figure<double, 4>> figures;
+    Array<std::shared_ptr<IFigure>> figures;
     figures.push_back(figure1);
     figures.push_back(figure2);
 
     EXPECT_EQ(figures.size(), 2);
     figures.remove_at(0);
     EXPECT_EQ(figures.size(), 1);
-    EXPECT_NEAR(static_cast<double>(figures[0]), 9.0, 1e-6);
+    EXPECT_NEAR(static_cast<double>(*figures[0]), 9.0, 1e-6);
 }
 
 int main(int argc, char **argv) {

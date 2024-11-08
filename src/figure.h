@@ -81,7 +81,7 @@ public:
         return std::make_unique<Point<T>>(C_x, C_y);
     }
 
-    virtual explicit operator double() const {
+    virtual explicit operator double() const override {
         double area = 0;
         if (PntCnt < 3) { return 0; }
         for (size_t i = 0; i < PntCnt; ++i) {
