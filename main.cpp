@@ -18,7 +18,7 @@ int main() {
                   << "4. Удалить фигуру по индексу\n"
                   << "5. Выйти\n"
                   << "Введите номер действия: ";
-        int choice;
+        size_t choice;
         std::cin >> choice;
 
         if (choice == 1) {
@@ -27,7 +27,7 @@ int main() {
                       << "2. Ромб\n"
                       << "3. Трапеция\n"
                       << "Введите номер типа: ";
-            int type;
+            size_t type;
             std::cin >> type;
 
             std::shared_ptr<IFigure> figure;

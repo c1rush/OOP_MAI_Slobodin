@@ -17,8 +17,10 @@ public:
         double pi = std::acos(-1);
         for (size_t i = 0; i < 5; ++i) {
             double angle = i * 2 * pi / 5;
-            vertices[i] = Point<T>(center.x + radius * std::cos(angle),
-                                   center.y + radius * std::sin(angle));
+            vertices[i] = std::make_unique<Point<T>>(
+                center.x + radius * std::cos(angle),
+                center.y + radius * std::sin(angle)
+            );
         }
     }
 
