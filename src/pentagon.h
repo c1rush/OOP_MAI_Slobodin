@@ -6,9 +6,9 @@ namespace Shape {
 
 template <typename T>
 class Pentagon : public Figure<T, 5> {
-public:
+private:
     using Figure<T, 5>::vertices;
-
+public:
     Pentagon() : Figure<T, 5>({{0,0},{1,1},{2,1},{2,-1},{1,-1}}) {}
 
     Pentagon(std::initializer_list<Point<T>> points) : Figure<T, 5>(points) {}

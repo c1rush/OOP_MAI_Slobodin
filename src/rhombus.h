@@ -5,9 +5,9 @@ namespace Shape {
 
 template <typename T>
 class Rhombus : public Figure<T, 4> {
-public:
+private:
     using Figure<T, 4>::vertices;
-
+public:
     Rhombus() : Figure<T, 4>({{-1,0}, {0,1}, {1,0}, {0,-1}}) {}
 
     Rhombus(std::initializer_list<Point<T>> points) : Figure<T, 4>(points) {}

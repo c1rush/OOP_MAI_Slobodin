@@ -5,9 +5,9 @@ namespace Shape {
 
 template <typename T>
 class Trapezoid : public Figure<T, 4> {
-public:
+private:
     using Figure<T, 4>::vertices;
-
+public:
     Trapezoid() : Figure<T, 4>({{0,0}, {1,1}, {2,1}, {2,0}}) {}
 
     Trapezoid(std::initializer_list<Point<T>> points) : Figure<T, 4>(points) {}
