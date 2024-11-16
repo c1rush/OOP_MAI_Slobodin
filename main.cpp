@@ -1,88 +1,60 @@
+#include "src/CustomMemoryResource.h"
+#include "src/CustomQueue.h"
 #include <iostream>
-#include <memory>
-#include "src/array.h"
-#include "src/pentagon.h"
-#include "src/rhombus.h"
-#include "src/trapezoid.h"
+#include <string>
 
-using namespace Shape;
+struct ComplexType {
+    int id;
+    std::string name;
+    double value;
+
+    bool operator==(const ComplexType& other) const {
+        return id == other.id && name == other.name && value == other.value;
+    }
+};
 
 int main() {
-    Array<std::shared_ptr<IFigure>> figures;
+    try {
+        // Инициализация пользовательского ресурса памяти с размером 1024 байт
+        CustomContainers::FixedBlockMemoryResource customResource(1024);
 
-    while (true) {
-        std::cout << "Выберите действие:\n"
-                  << "1. Добавить фигуру\n"
-                  << "2. Показать все фигуры\n"
-                  << "3. Вычислить общую площадь\n"
-                  << "4. Удалить фигуру по индексу\n"
-                  << "5. Выйти\n"
-                  << "Введите номер действия: ";
-        size_t choice;
-        std::cin >> choice;
+        // Создание аллокатора для int и ComplexType
+        std::pmr::polymorphic_allocator<int> intAllocator(&customResource);
+        std::pmr::polymorphic_allocator<ComplexType> complexAllocator(&customResource);
 
-        if (choice == 1) {
-            std::cout << "Выберите тип фигуры:\n"
-                      << "1. Пятиугольник\n"
-                      << "2. Ромб\n"
-                      << "3. Трапеция\n"
-                      << "Введите номер типа: ";
-            size_t type;
-            std::cin >> type;
+        // Создание очереди для int
+        CustomContainers::CustomQueue<int, std::pmr::polymorphic_allocator<int>> intQueue(intAllocator);
+        intQueue.enqueue(10);
+        intQueue.enqueue(20);
+        intQueue.enqueue(30);
 
-            std::shared_ptr<IFigure> figure;
+        std::cout << "Int Queue: ";
+        for(auto val : intQueue){
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
 
-            if (type == 1) {
-                std::shared_ptr<Pentagon<double>> pentagon = std::make_shared<Pentagon<double>>();
-                std::cin >> *pentagon;
-                figure = pentagon;
-            }
-            else if (type == 2) {
-                std::shared_ptr<Rhombus<double>> rhombus = std::make_shared<Rhombus<double>>();
-                std::cin >> *rhombus;
-                figure = rhombus;
-            }
-            else if (type == 3) {
+        // Создание очереди для ComplexType
+        CustomContainers::CustomQueue<ComplexType, std::pmr::polymorphic_allocator<ComplexType>> complexQueue(complexAllocator);
+        complexQueue.enqueue(ComplexType{1, "Alpha", 100.5});
+        complexQueue.enqueue(ComplexType{2, "Beta", 200.75});
+        complexQueue.enqueue(ComplexType{3, "Gamma", 300.25});
 
-                std::shared_ptr<Trapezoid<double>> trapezoid = std::make_shared<Trapezoid<double>>();
-                std::cin >> *trapezoid;
-                figure = trapezoid;
-            }
-            else {
-                std::cout << "Некорректный тип фигуры.\n";
-                continue;
-            }
+        std::cout << "Complex Queue:" << std::endl;
+        for(auto &item : complexQueue){
+            std::cout << "ID: " << item.id << ", Name: " << item.name << ", Value: " << item.value << std::endl;
+        }
 
-            figures.push_back(figure);
-            std::cout << "Фигура добавлена.\n";
+        // Демонстрация работы dequeue
+        std::cout << "\nAfter dequeuing an element from intQueue:" << std::endl;
+        intQueue.dequeue();
+        for(auto val : intQueue){
+            std::cout << val << " ";
         }
-        else if (choice == 2) {
-            std::cout << "Все фигуры:\n";
-            figures.PrintAll();
-        }
-        else if (choice == 3) {
-            double total_area = figures.TotalArea();
-            std::cout << "Общая площадь всех фигур: " << total_area << "\n";
-        }
-        else if (choice == 4) {
-            std::cout << "Введите индекс фигуры для удаления: ";
-            size_t index;
-            std::cin >> index;
-            try {
-                figures.remove_at(index);
-                std::cout << "Фигура удалена.\n";
-            }
-            catch (const std::out_of_range& e) {
-                std::cout << "Ошибка: " << e.what() << "\n";
-            }
-        }
-        else if (choice == 5) {
-            std::cout << "Выход из программы.\n";
-            break;
-        }
-        else {
-            std::cout << "Некорректный выбор.\n";
-        }
+        std::cout << std::endl;
+
+    } catch(const std::exception &e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
 
     return 0;

@@ -17,20 +17,20 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 
-add_library(lab_4_lib INTERFACE)
+add_library(lab_5_lib INTERFACE)
 
-target_include_directories(lab_4_lib INTERFACE src)
+target_include_directories(lab_5_lib INTERFACE src)
 
-add_executable(lab_4_exe main.cpp)
+add_executable(lab_5_exe main.cpp)
 
-target_link_libraries(lab_4_exe PRIVATE lab_4_lib)
+target_link_libraries(lab_5_exe PRIVATE lab_5_lib)
 
-target_include_directories(lab_4_exe PRIVATE lab_4_lib)
+target_include_directories(lab_5_exe PRIVATE lab_5_lib)
 # Добавление тестов
 enable_testing()
 
 add_executable(tests test/tests01.cpp)
-target_link_libraries(tests lab_4_lib gtest_main)
+target_link_libraries(tests lab_5_lib gtest_main)
 
 
 # Добавление тестов в тестовый набор
