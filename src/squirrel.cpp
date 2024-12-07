@@ -9,8 +9,11 @@ void Squirrel::accept(Visitor& visitor, std::shared_ptr<NPC> other) {
 }
 
 void Squirrel::print() const {
-    std::cout << "Squirrel - Name: " << name
-              << ", Coordinates: (" << x << ", " << y << ")" << std::endl;
+    if (alive) {
+        std::cout << "Squirrel - Name: " << name
+                << ", Coordinates: (" << x << ", " << y << ")" << std::endl;
+
+    }
 }
 
 void Squirrel::save(std::ostream& os) const {

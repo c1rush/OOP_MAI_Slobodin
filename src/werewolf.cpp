@@ -9,8 +9,10 @@ void Werewolf::accept(Visitor& visitor, std::shared_ptr<NPC> other) {
 }
 
 void Werewolf::print() const {
-    std::cout << "Werewolf - Name: " << name
-              << ", Coordinates: (" << x << ", " << y << ")" << std::endl;
+    if (alive) {
+        std::cout << "Werewolf - Name: " << name
+                << ", Coordinates: (" << x << ", " << y << ")" << std::endl;
+    }
 }
 
 void Werewolf::save(std::ostream& os) const {

@@ -1,71 +1,87 @@
 #include "npc.h"
 #include "factory.h"
-#include "visitor.h"
 #include "observer.h"
+#include "logger.h"
+#include "scheduler.h"
+
 #include <iostream>
+#include <vector>
+#include <atomic>
+#include <chrono>
+#include <thread>
 #include <cstdlib>
 #include <ctime>
-#include <vector>
-#include <set>
 
-using SetNPC = std::set<std::shared_ptr<NPC>>;
-
-// Сохранение NPC в файл
-void saveNPCs(const SetNPC& npcs, const std::string& filename) {
-    std::ofstream ofs(filename);
-    if (ofs.is_open()) {
-        ofs << npcs.size() << '\n';
-        for (const auto& npc : npcs) {
-            npc->save(ofs);
-        }
-    }
-}
-
-// Загрузка NPC из файла
-SetNPC loadNPCs(const std::string& filename) {
-    SetNPC npcs;
-    std::ifstream ifs(filename);
-    if (ifs.is_open()) {
-        size_t size;
-        ifs >> size;
-        for (size_t i = 0; i < size; ++i) {
-            auto npc = NPC::load(ifs);
-            if (npc) {
-                npcs.insert(npc);
-            }
-        }
-    }
-    return npcs;
-}
+std::vector<std::shared_ptr<NPC>> npcs;
+std::atomic<bool> game_over(false);
 
 int main() {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    SetNPC npcs;
-
-    // Создаем NPC и добавляем наблюдателей
-    auto squirrel = NPCFactory::createNPC(NpcType::SquirrelType, "Squirrel", 10, 10);
-    auto werewolf = NPCFactory::createNPC(NpcType::WerewolfType, "Werewolf", 15, 15);
-    auto druid = NPCFactory::createNPC(NpcType::DruidType, "Druid", 20, 20);
-
+    // Создание наблюдателей
     auto consoleObserver = std::make_shared<ConsoleObserver>();
-    squirrel->addObserver(consoleObserver);
-    werewolf->addObserver(consoleObserver);
-    druid->addObserver(consoleObserver);
+    auto fileObserver = std::make_shared<FileObserver>("log.txt");
 
-    npcs.insert(squirrel);
-    npcs.insert(werewolf);
-    npcs.insert(druid);
+    // Генерация NPC
+    const int num_npcs = 50;
+    for (int i = 0; i < num_npcs; ++i) {
+        NpcType type = static_cast<NpcType>(std::rand() % 3 + 1);
+        std::string name = "NPC_" + std::to_string(i);
+        int x = std::rand() % 101;
+        int y = std::rand() % 101;
 
-    // Сохраняем NPC в файл
-    saveNPCs(npcs, "npcs.txt");
+        auto npc = NPCFactory::createNPC(type, name, x, y);
+        npc->addObserver(consoleObserver);
+        npc->addObserver(fileObserver);
 
-    // Загружаем NPC из файла
-    auto loadedNPCs = loadNPCs("npcs.txt");
+        npcs.push_back(npc);
+    }
 
-    // Выводим информацию о загруженных NPC
-    for (const auto& npc : loadedNPCs) {
-        npc->print();
+    // Запуск корутин NPC
+    for (auto& npc : npcs) {
+        Scheduler::instance().schedule(npc->run());
+    }
+
+    // Запуск планировщика в отдельном потоке
+    std::thread scheduler_thread([]() {
+        while (!game_over) {
+            Scheduler::instance().run();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    });
+
+    // Основной поток выводит карту
+    auto start_time = std::chrono::steady_clock::now();
+    while (!game_over) {
+        // Выводим позиции NPC
+        Logger::logBlock([&]() {
+            std::cout << "Current NPC positions:" << std::endl;
+            for (const auto& npc : npcs) {
+                if (npc->alive) {
+                    npc->print();
+                }
+            }
+            std::cout << "-------------------------------------" << std::endl;
+        });
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        // Проверяем, прошло ли 30 секунд
+        auto elapsed = std::chrono::steady_clock::now() - start_time;
+        if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 30) {
+            game_over = true;
+        }
+    }
+
+    // Ожидаем завершения планировщика
+    scheduler_thread.join();
+
+    // Выводим список выживших
+    Logger::log("Game over! Survivors:");
+    for (const auto& npc : npcs) {
+        if (npc->alive) {
+            npc->print();
+        }
     }
 
     return 0;

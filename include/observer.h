@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <mutex>
 
 struct Observer {
     virtual void onEvent(const std::string& event) = 0;
@@ -22,6 +23,7 @@ struct FileObserver : public Observer {
 
 private:
     std::ofstream ofs;
+    std::mutex file_mutex;
 };
 
 #endif

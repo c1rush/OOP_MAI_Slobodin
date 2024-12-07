@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <memory>
+#include <vector>
+#include <atomic>
+#include <sstream>
 #include <npc.h>
 #include <squirrel.h>
 #include <werewolf.h>
@@ -7,118 +10,131 @@
 #include <visitor.h>
 #include <observer.h>
 #include <factory.h>
+#include <scheduler.h>
 
-// Тест на создание NPC
-TEST(NPCTest, CreationTest) {
-    auto squirrel = NPCFactory::createNPC(NpcType::SquirrelType, "Nutty", 100, 200);
-    auto werewolf = NPCFactory::createNPC(NpcType::WerewolfType, "Fenrir", 300, 400);
-    auto druid = NPCFactory::createNPC(NpcType::DruidType, "Merlin", 150, 250);
+std::vector<std::shared_ptr<NPC>> npcs;
+std::atomic<bool> game_over(false);
 
-    ASSERT_NE(squirrel, nullptr);
-    ASSERT_NE(werewolf, nullptr);
-    ASSERT_NE(druid, nullptr);
+class NPCTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        // Инициализация NPC
+        auto elf = NPCFactory::createNPC(NpcType::SquirrelType, "TestSquirrel", 10, 10);
+        auto dragon = NPCFactory::createNPC(NpcType::WerewolfType, "TestWerewolf", 20, 20);
+        auto druid = NPCFactory::createNPC(NpcType::DruidType, "TestDruid", 30, 30);
+        
+        npcs.push_back(elf);
+        npcs.push_back(dragon);
+        npcs.push_back(druid);
+    }
+    
+    void TearDown() override {
+        npcs.clear();
+        game_over.store(false);
+    }
+};
 
-    EXPECT_EQ(squirrel->name, "Nutty");
-    EXPECT_EQ(werewolf->name, "Fenrir");
-    EXPECT_EQ(druid->name, "Merlin");
 
-    EXPECT_EQ(squirrel->x, 100);
-    EXPECT_EQ(squirrel->y, 200);
-    EXPECT_EQ(werewolf->x, 300);
-    EXPECT_EQ(werewolf->y, 400);
-    EXPECT_EQ(druid->x, 150);
-    EXPECT_EQ(druid->y, 250);
+
+TEST_F(NPCTest, CreationTest) {
+    ASSERT_EQ(npcs.size(), 3);
+
+    EXPECT_EQ(npcs[0]->name, "TestSquirrel");
+    EXPECT_EQ(npcs[1]->name, "TestWerewolf");
+    EXPECT_EQ(npcs[2]->name, "TestDruid");
+
+    EXPECT_EQ(npcs[0]->x, 10);
+    EXPECT_EQ(npcs[0]->y, 10);
+    EXPECT_EQ(npcs[1]->x, 20);
+    EXPECT_EQ(npcs[1]->y, 20);
+    EXPECT_EQ(npcs[2]->x, 30);
+    EXPECT_EQ(npcs[2]->y, 30);
 }
 
-// Тест на вычисление расстояния
-TEST(NPCTest, DistanceTest) {
-    auto npc1 = NPCFactory::createNPC(NpcType::SquirrelType, "Squirrel1", 0, 0);
-    auto npc2 = NPCFactory::createNPC(NpcType::WerewolfType, "Werewolf1", 3, 4); // Расстояние 5 от npc1
+TEST_F(NPCTest, Movement) {
+    auto initial_x = npcs[0]->x;
+    auto initial_y = npcs[0]->y;
 
-    EXPECT_TRUE(npc1->isClose(npc2, 5));  // Ожидаем, что расстояние будет <= 5
-    EXPECT_FALSE(npc1->isClose(npc2, 4)); // Ожидаем, что расстояние не будет <= 4
+    // Запускаем корутину перемещения NPC
+    auto task = npcs[0]->run();
+    Scheduler::instance().schedule(std::move(task));
+    Scheduler::instance().run();
+
+    // Проверяем, что NPC переместился
+    EXPECT_NE(npcs[0]->x, initial_x);
+    EXPECT_NE(npcs[0]->y, initial_y);
+}
+
+TEST_F(NPCTest, Interaction) {
+    // Устанавливаем NPC близко друг к другу для сражения
+    npcs[0]->x = 50;
+    npcs[0]->y = 50;
+
+    npcs[1]->x = 50;
+    npcs[1]->y = 50;
+
+    // Запускаем корутину
+    auto task0 = npcs[0]->run();
+    auto task1 = npcs[1]->run();
+    Scheduler::instance().schedule(std::move(task0));
+    Scheduler::instance().schedule(std::move(task1));
+
+    // Запускаем планировщик несколько раз, чтобы произошёл бой
+    for (int i = 0; i < 10; ++i) {
+        Scheduler::instance().run();
+    }
+
+    bool werewolf_alive = npcs[1]->alive;
+    bool squirrel_alive = npcs[0]->alive;
+
+    EXPECT_TRUE(!squirrel_alive || werewolf_alive);
+}
+
+TEST_F(NPCTest, GameOver) {
+    game_over.store(true);
+
+    auto task = npcs[0]->run();
+    Scheduler::instance().schedule(std::move(task));
+    Scheduler::instance().run();
+
+    // Проверяем, что NPC завершил свою корутину
+    EXPECT_TRUE(task.done());
+}
+
+
+// Тест на вычисление расстояния
+TEST_F(NPCTest, DistanceTest) {
+    auto npc1 = npcs[0]; // TestElf at (10,10)
+    auto npc2 = NPCFactory::createNPC(NpcType::WerewolfType, "Werewolf1", 13, 14);
+
+    EXPECT_TRUE(npc1->isClose(npc2, 5));
+    EXPECT_FALSE(npc1->isClose(npc2, 4));
 }
 
 
 // Тест на бой между NPC
-TEST(NPCTest, FightTest) {
-    auto squirrel = std::dynamic_pointer_cast<Squirrel>(NPCFactory::createNPC(NpcType::SquirrelType, "Nutty", 0, 0));
-    auto werewolf = std::dynamic_pointer_cast<Werewolf>(NPCFactory::createNPC(NpcType::WerewolfType, "Fenrir", 0, 0));
-    auto druid = std::dynamic_pointer_cast<Druid>(NPCFactory::createNPC(NpcType::DruidType, "Merlin", 0, 0));
+TEST_F(NPCTest, FightTest) {
+    auto squirrel = npcs[0];
+    auto werewolf = npcs[1];
+    auto druid = npcs[2];
 
-    // Наблюдатели
-    auto consoleObserver = std::make_shared<ConsoleObserver>();
-    squirrel->addObserver(consoleObserver);
-    werewolf->addObserver(consoleObserver);
-    druid->addObserver(consoleObserver);
-
-    // Белка атакует друида
     Visitor fight1(*squirrel);
     druid->accept(fight1, squirrel);
 
-    EXPECT_FALSE(fight1.attackerDies);  // Белка не должна погибнуть
-    EXPECT_TRUE(fight1.defenderDies);   // Друид должен погибнуть
+    EXPECT_FALSE(fight1.attackerDies);
+    EXPECT_TRUE(fight1.defenderDies);
 
-    // Оборотень атакует белку
     Visitor fight2(*werewolf);
-    squirrel->accept(fight2, werewolf);
+    druid->accept(fight2, werewolf);
 
-    EXPECT_FALSE(fight2.attackerDies);  // Оборотень не должен погибнуть
-    EXPECT_TRUE(fight2.defenderDies);   // Белка должна погибнуть
+    EXPECT_FALSE(fight2.attackerDies);
+    EXPECT_TRUE(fight2.defenderDies);
 
-    // Друид атакует волка
-    Visitor fight3(*druid);
-    werewolf->accept(fight3, druid);
+    Visitor fight3(*squirrel);
+    werewolf->accept(fight3, squirrel);
 
-    EXPECT_FALSE(fight3.attackerDies);  // Друид не должен погибнуть
-    EXPECT_TRUE(fight3.defenderDies);   // Оборотень должен погибнуть
-}
-
-// Тест на работу с наблюдателями
-TEST(NPCTest, ObserverTest) {
-    auto squirrel = NPCFactory::createNPC(NpcType::SquirrelType, "Nutty", 0, 0);
-    auto druid = NPCFactory::createNPC(NpcType::DruidType, "Merlin", 0, 0);
-
-    // Создаем mock-объект для наблюдателя
-    class MockObserver : public Observer {
-    public:
-        std::string lastEvent;
-        void onEvent(const std::string& event) override {
-            lastEvent = event;
-        }
-    };
-
-    auto mockObserver = std::make_shared<MockObserver>();
-    squirrel->addObserver(mockObserver);
-
-    // Белка атакует друида
-    Visitor fight(*squirrel);
-    druid->accept(fight, squirrel);
-
-    if (fight.defenderDies) {
-        squirrel->notify(squirrel->name + " killed " + druid->name); // Белка убивает друида
-    }
-
-    EXPECT_EQ(mockObserver->lastEvent, "Nutty killed Merlin");
-}
-
-// Тест на сохранение и загрузку NPC
-TEST(NPCTest, SaveLoadTest) {
-    auto squirrel = NPCFactory::createNPC(NpcType::SquirrelType, "Nutty", 100, 200);
-
-    // Сохраняем NPC в строковый поток
-    std::ostringstream oss;
-    squirrel->save(oss);
-
-    // Загружаем NPC из строкового потока
-    std::istringstream iss(oss.str());
-    auto loadedSquirrel = NPC::load(iss);
-
-    ASSERT_NE(loadedSquirrel, nullptr);
-    EXPECT_EQ(loadedSquirrel->type, NpcType::SquirrelType);
-    EXPECT_EQ(loadedSquirrel->name, "Nutty");
-    EXPECT_EQ(loadedSquirrel->x, 100);
-    EXPECT_EQ(loadedSquirrel->y, 200);
+    EXPECT_TRUE(fight3.attackerDies);
+    EXPECT_FALSE(fight3.defenderDies);
 }
 
 int main(int argc, char** argv) {

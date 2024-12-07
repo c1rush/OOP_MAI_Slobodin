@@ -9,8 +9,10 @@ void Druid::accept(Visitor& visitor, std::shared_ptr<NPC> other) {
 }
 
 void Druid::print() const {
-    std::cout << "Druid - Name: " << name
-              << ", Coordinates: (" << x << ", " << y << ")" << std::endl;
+    if (alive) {
+        std::cout << "Druid - Name: " << name
+                << ", Coordinates: (" << x << ", " << y << ")" << std::endl;   
+    }
 }
 
 void Druid::save(std::ostream& os) const {

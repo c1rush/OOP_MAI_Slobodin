@@ -1,7 +1,8 @@
 #include "observer.h"
+#include "logger.h"
 
 void ConsoleObserver::onEvent(const std::string& event) {
-    std::cout << event << std::endl;
+    Logger::log(event);
 }
 
 FileObserver::FileObserver(const std::string& filename) {
@@ -15,6 +16,7 @@ FileObserver::~FileObserver() {
 }
 
 void FileObserver::onEvent(const std::string& event) {
+    std::lock_guard<std::mutex> lock(file_mutex);
     if (ofs.is_open()) {
         ofs << event << std::endl;
     }

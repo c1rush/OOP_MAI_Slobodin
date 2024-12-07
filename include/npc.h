@@ -5,8 +5,12 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <mutex>
+#include <shared_mutex>
 #include "observer.h"
 #include "visitor.h"
+#include "task.h"
 
 enum class NpcType {
     Unknown = 0,
@@ -20,6 +24,9 @@ struct NPC : public std::enable_shared_from_this<NPC> {
     std::string name;
     int x;
     int y;
+    int move_distance;
+    int kill_distance;
+    bool alive;
 
     NPC(NpcType type, const std::string& name, int x, int y);
     virtual ~NPC() = default;
@@ -32,6 +39,9 @@ struct NPC : public std::enable_shared_from_this<NPC> {
     bool isClose(const std::shared_ptr<NPC>& other, size_t distance) const;
 
     virtual void print() const;
+
+    Task run();
+
     virtual void save(std::ostream& os) const;
     static std::shared_ptr<NPC> load(std::istream& is);
 
