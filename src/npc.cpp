@@ -67,27 +67,22 @@ Task NPC::run() {
     std::uniform_int_distribution<int> move_distribution(-move_distance, move_distance);
 
     while (alive && !game_over.load()) {
-        // Перемещение
         x += move_distribution(generator);
         y += move_distribution(generator);
 
-        // Не позволяем NPC покинуть пределы карты
         if (x < 0) x = 0;
         if (x > 100) x = 100;
         if (y < 0) y = 0;
         if (y > 100) y = 100;
 
-        // Сражение
         for (auto& other : npcs) {
             if (other.get() == this || !other->alive) continue;
 
             if (isClose(other, kill_distance)) {
-                // Проверяем совместимость для боя
                 Visitor fight(*this);
                 other->accept(fight, shared_from_this());
 
                 if (fight.attackerDies || fight.defenderDies) {
-                    // Бросаем кубики
                     int attack_strength = dice_distribution(generator);
                     int defense_strength = dice_distribution(generator);
 
@@ -100,7 +95,7 @@ Task NPC::run() {
                         if (fight.attackerDies) {
                             alive = false;
                             notify(name + " was killed by " + other->name);
-                            co_return; // Завершаем корутину, если NPC умер
+                            co_return;
                         }
                     }
                 }

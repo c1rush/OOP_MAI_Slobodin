@@ -18,11 +18,11 @@ std::atomic<bool> game_over(false);
 int main() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    // Создание наблюдателей
+    // Наблюдатели
     auto consoleObserver = std::make_shared<ConsoleObserver>();
     auto fileObserver = std::make_shared<FileObserver>("log.txt");
 
-    // Генерация NPC
+    // НПС
     const int num_npcs = 50;
     for (int i = 0; i < num_npcs; ++i) {
         NpcType type = static_cast<NpcType>(std::rand() % 3 + 1);
@@ -37,12 +37,12 @@ int main() {
         npcs.push_back(npc);
     }
 
-    // Запуск корутин NPC
+    // Корутины
     for (auto& npc : npcs) {
         Scheduler::instance().schedule(npc->run());
     }
 
-    // Запуск планировщика в отдельном потоке
+    // Планировщик в отдельном потоке
     std::thread scheduler_thread([]() {
         while (!game_over) {
             Scheduler::instance().run();
@@ -50,10 +50,9 @@ int main() {
         }
     });
 
-    // Основной поток выводит карту
+    // Поток для карты
     auto start_time = std::chrono::steady_clock::now();
     while (!game_over) {
-        // Выводим позиции NPC
         Logger::logBlock([&]() {
             std::cout << "Current NPC positions:" << std::endl;
             for (const auto& npc : npcs) {
@@ -66,17 +65,15 @@ int main() {
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        // Проверяем, прошло ли 30 секунд
+        // 30 сек
         auto elapsed = std::chrono::steady_clock::now() - start_time;
         if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() >= 30) {
             game_over = true;
         }
     }
 
-    // Ожидаем завершения планировщика
     scheduler_thread.join();
 
-    // Выводим список выживших
     Logger::log("Game over! Survivors:");
     for (const auto& npc : npcs) {
         if (npc->alive) {

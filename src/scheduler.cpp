@@ -10,6 +10,8 @@ void Scheduler::schedule(Task&& task) {
     tasks.push_back(std::move(task));
 }
 
+
+// Запуск планировщика
 void Scheduler::run() {
     if (!tasks.empty()) {
         Task task = std::move(tasks.front());
